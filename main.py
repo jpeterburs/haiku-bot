@@ -39,7 +39,9 @@ class Client(discord.Client):
     if is_haiku(poem):
       haiku = '\n'.join(poem) + '\n'
 
-      await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
+      reply = await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
+      await reply.add_reaction('⬆️')
+      await reply.add_reaction('⬇️')
 
 intents = discord.Intents.default()
 intents.message_content = True
