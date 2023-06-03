@@ -1,6 +1,8 @@
-import discord
+import interactions
 import syllables
 import os
+
+client = interactions.Client(token = os.environ['TOKEN'], intents = interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT)
 
 def split_into_haiku(string):
   words = string.split()
@@ -29,22 +31,19 @@ def is_haiku(lines):
 
   return line_syllables == expected_syllables
 
-class Client(discord.Client):
-  async def on_message(self, message):
-    if message.author.bot:
-      return
 
-    poem = split_into_haiku(message.content.replace('\n', ' '))
+@client.event
+async def on_message_create(message):
+  if message.author.bot:
+    return
 
-    if is_haiku(poem):
-      haiku = '\n'.join(poem) + '\n'
+  poem = split_into_haiku(message.content.replace('\n', ' '))
 
-      reply = await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
-      await reply.add_reaction('⬆️')
-      await reply.add_reaction('⬇️')
+  if is_haiku(poem):
+    haiku = '\n'.join(poem) + '\n'
 
-intents = discord.Intents.default()
-intents.message_content = True
+    reply = await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
+    await reply.create_reaction('⬆️')
+    await reply.create_reaction('⬇️')
 
-client = Client(intents = intents)
-client.run(os.environ['TOKEN'])
+client.start()
