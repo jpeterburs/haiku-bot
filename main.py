@@ -1,3 +1,4 @@
+import discord
 import interactions
 import syllables
 import os
@@ -31,6 +32,13 @@ def is_haiku(lines):
 
   return line_syllables == expected_syllables
 
+@client.command(name = 'invite', description = f'Lade {client.me.name} auf deinen eigenen Server ein!')
+async def invite_command(ctx: interactions.CommandContext):
+  permissions = discord.Permissions()
+  permissions.update(read_messages=True, send_messages=True, add_reactions = True)
+
+  invite_link = discord.utils.oauth_url(client.me.id, permissions=permissions)
+  await ctx.send(f'➡️ {invite_link}')
 
 @client.event
 async def on_message_create(message):
