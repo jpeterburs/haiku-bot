@@ -1,6 +1,9 @@
 import discord
+import interactions
 import syllables
 import os
+
+client = interactions.Client(token = os.environ['TOKEN'], intents = interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT)
 
 def split_into_haiku(string):
   words = string.split()
@@ -29,22 +32,26 @@ def is_haiku(lines):
 
   return line_syllables == expected_syllables
 
-class Client(discord.Client):
-  async def on_message(self, message):
-    if message.author.bot:
-      return
+@client.command(name = 'invite', description = f'Lade {client.me.name} auf deinen eigenen Server ein!')
+async def invite_command(ctx: interactions.CommandContext):
+  permissions = discord.Permissions()
+  permissions.update(read_messages=True, send_messages=True, add_reactions = True)
 
-    poem = split_into_haiku(message.content.replace('\n', ' '))
+  invite_link = discord.utils.oauth_url(client.me.id, permissions=permissions)
+  await ctx.send(f'➡️ {invite_link}')
 
-    if is_haiku(poem):
-      haiku = '\n'.join(poem) + '\n'
+@client.event
+async def on_message_create(message):
+  if message.author.bot:
+    return
 
-      reply = await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
-      await reply.add_reaction('⬆️')
-      await reply.add_reaction('⬇️')
+  poem = split_into_haiku(message.content.replace('\n', ' '))
 
-intents = discord.Intents.default()
-intents.message_content = True
+  if is_haiku(poem):
+    haiku = '\n'.join(poem) + '\n'
 
-client = Client(intents = intents)
-client.run(os.environ['TOKEN'])
+    reply = await message.reply(haiku + '\n*Beep noop! Ich halte Ausschau nach versehentlichen Haikus. Manchmal mache ich Fehler.*')
+    await reply.create_reaction('⬆️')
+    await reply.create_reaction('⬇️')
+
+client.start()
