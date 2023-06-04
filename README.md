@@ -11,7 +11,7 @@ version: '3.9'
 
 services:
   app:
-    build: .
+    image: jpeterburs/haiku-bot:latest
     environment:
       TOKEN: 'your token here'
 ```
